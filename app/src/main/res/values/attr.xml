@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--画板-->
+    <declare-styleable name="SignaturePad">
+        <attr name="minWidth" format="float" />
+        <attr name="maxWidth" format="float" />
+        <attr name="penColor" format="color" />
+        <attr name="velocityFilterWeight" format="float" />
+    </declare-styleable>
+
+    <declare-styleable name="LabelView">
+        <attr name="label_title" format="string" />
+    </declare-styleable>
+
+    <declare-styleable name="InputView">
+        <attr name="input_title" format="string" />
+    </declare-styleable>
+
+    <declare-styleable name="SelectEditView">
+        <attr name="se_title" format="string" />
+    </declare-styleable>
+</resources>
