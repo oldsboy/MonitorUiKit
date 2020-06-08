@@ -26,7 +26,7 @@ import com.oldsboy.monitoruikit.utils.FileUtil;
  * @UpdateRemark: 更新说明：
  * @Version: 1.0
  */
-public class Dialog_ShowPicture extends BaseMapDialog {
+public class Dialog_ShowPicture extends BaseDialog {
     private String img_path;
 
     private ImageView imgContent;

@@ -74,6 +74,7 @@ public class TableView<T> extends LinearLayout {
     private int settingListViewHeight = 0;
     private int headHeight = 0;
     private boolean headTextBold = false;
+    private boolean isLongClickShowDetail = true;
 
     private NoScrollLinearLayoutManager linearLayoutManager;
 
@@ -86,6 +87,14 @@ public class TableView<T> extends LinearLayout {
     private OnBtnClickListener onBtnClickListener;
 
     private TableRecyclerAdapter adapter;
+
+    /**
+     * 设置长按显示单条item详情，于长按事件冲突，以此优先
+     * @param isLongClickShowDetail
+     */
+    public void setEnableLongClickShowDetail(boolean isLongClickShowDetail){
+        this.isLongClickShowDetail = isLongClickShowDetail;
+    }
 
     public void setHeadTextBold(boolean isBold){
         this.headTextBold = isBold;
@@ -194,6 +203,11 @@ public class TableView<T> extends LinearLayout {
     }
 
     private com.oldsboy.monitoruikit.tableview.TableRecyclerAdapter.OnMyItemLongClickListener<T> onMyItemLongClickListener;
+
+    /**
+     * 注意：设置长按事件前先将setEnableLongClickShowDetail设置为false，否则不触发长按事件
+     * @param onMyItemLongClickListener
+     */
     public void setOnMyItemLongClickListener(com.oldsboy.monitoruikit.tableview.TableRecyclerAdapter.OnMyItemLongClickListener<T> onMyItemLongClickListener){
         if (this.adapter != null) {
             this.adapter.setOnMyItemLongClickListener(onMyItemLongClickListener);
@@ -432,6 +446,7 @@ public class TableView<T> extends LinearLayout {
         if (onMyItemDoubleClickListener != null){
             adapter.setOnMyItemDoubleClickListener(onMyItemDoubleClickListener);
         }
+        adapter.setEnableLongClickShowDetail(isLongClickShowDetail);
         recycler_tablebody.setAdapter(adapter);
 
         refreshTableHeight();
@@ -477,9 +492,8 @@ public class TableView<T> extends LinearLayout {
                         Toast.makeText(context, "请完成此条item编辑以后再编辑！", Toast.LENGTH_SHORT).show();
                         return;
                     }
-                    is_editing = true;
-
                     if (adapter.getLast_click_item() != -1) {
+                        is_editing = true;
                         //  获取那条item数据重新设置，刷新表格
                         if (adapter.getItemViewType(adapter.getLast_click_item()) == TableRecyclerAdapter.SHOW_TYPE) {
                             List<String[]> line = (List<String[]>) adapter.getItem(adapter.getLast_click_item());

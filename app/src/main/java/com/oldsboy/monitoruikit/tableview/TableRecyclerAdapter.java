@@ -22,6 +22,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 
 import com.oldsboy.monitoruikit.R;
+import com.oldsboy.monitoruikit.tableview.dialog.Dialog_ItemDetail;
 import com.oldsboy.monitoruikit.tableview.dialog.Dialog_ShowPicture;
 import com.oldsboy.monitoruikit.utils.BitmapsUtil;
 import com.oldsboy.monitoruikit.utils.FileUtil;
@@ -53,6 +54,7 @@ public class TableRecyclerAdapter extends RecyclerView.Adapter<TableRecyclerAdap
     private String base_picture_path;
     private int last_click_item = -1;
     private boolean needOrder;
+    private boolean isLongClickShowDetail = false;
 
     private RecyclerView tablebody;
 
@@ -79,6 +81,10 @@ public class TableRecyclerAdapter extends RecyclerView.Adapter<TableRecyclerAdap
 
     public static int getLineHeight() {
         return lineHeight;
+    }
+
+    public void setEnableLongClickShowDetail(boolean isLongClickShowDetail) {
+        this.isLongClickShowDetail = isLongClickShowDetail;
     }
 
     public interface OnMyItemClickListener<T>{
@@ -309,8 +315,11 @@ public class TableRecyclerAdapter extends RecyclerView.Adapter<TableRecyclerAdap
                     notifyItemChanged(last_click_item);
                 if (myItemClickListener != null && returnDataSetting != null){
                     myItemClickListener.onItemClickListener(holder.itemView, position, returnDataSetting.reParse(formatStringArrayToString(tableList, position, needOrder)));
-                }else {
-                    Log.e(TAG, "未设置returnDataSetting，故无法触发单击事件");
+                }
+                if (onMyItemDoubleClickListener != null && returnDataSetting != null){
+                    if (temp_position == position) {
+                        onMyItemDoubleClickListener.onItemDoubleClickListener(holder.itemView, position, returnDataSetting.reParse(formatStringArrayToString(tableList, position, needOrder)));
+                    }
                 }
             }
         });
@@ -318,10 +327,15 @@ public class TableRecyclerAdapter extends RecyclerView.Adapter<TableRecyclerAdap
         holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-                if (onMyItemLongClickListener != null && returnDataSetting != null){
-                    onMyItemLongClickListener.onItemLongClickListener(holder.itemView, position, returnDataSetting.reParse(formatStringArrayToString(tableList, position, needOrder)));
+                if (isLongClickShowDetail){
+                    Dialog_ItemDetail dialog_itemDetail = new Dialog_ItemDetail(context, tableHeadList, tableList, position);
+                    dialog_itemDetail.show();
                 }else {
-                    Log.e(TAG, "未设置returnDataSetting，故无法触发长按事件");
+                    if (onMyItemLongClickListener != null && returnDataSetting != null) {
+                        onMyItemLongClickListener.onItemLongClickListener(holder.itemView, position, returnDataSetting.reParse(formatStringArrayToString(tableList, position, needOrder)));
+                    } else {
+                        Log.e(TAG, "未设置returnDataSetting，故无法触发长按事件");
+                    }
                 }
                 return false;
             }
