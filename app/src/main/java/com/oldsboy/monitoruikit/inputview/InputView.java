@@ -42,4 +42,8 @@ public class InputView extends LinearLayout{
         contentTV = (EditText)findViewById(R.id.inputET);
         titleTV.setText(title);
     }
+
+    public TextView getTitle() {
+        return titleTV;
+    }
 }

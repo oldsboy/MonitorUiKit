@@ -3,7 +3,7 @@
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent">
     <RelativeLayout
-        android:background="@color/select_color"
+        android:background="@color/custom_table_grey"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
         <ImageView
@@ -15,6 +15,7 @@
         <TextView
             android:text="查看详情"
             android:layout_centerInParent="true"
+            android:textColor="@color/default_color"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
     </RelativeLayout>

@@ -29,7 +29,7 @@ public class BaseDialog extends Dialog {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
         ScreenUtil.configDialog(this);
+        super.onCreate(savedInstanceState);
     }
 }

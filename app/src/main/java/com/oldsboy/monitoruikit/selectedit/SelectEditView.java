@@ -46,4 +46,8 @@ public class SelectEditView extends RelativeLayout{
         btn = (Button)findViewById(R.id.selectEditViewBtn);
         tv.setText(title);
     }
+
+    public TextView getTitle() {
+        return tv;
+    }
 }

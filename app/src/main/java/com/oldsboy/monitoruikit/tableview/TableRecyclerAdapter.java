@@ -10,6 +10,7 @@ import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
@@ -156,6 +157,20 @@ public class TableRecyclerAdapter extends RecyclerView.Adapter<TableRecyclerAdap
                         if (StringUtil.isEmpty(string)) string = "";
                         line.add(string);
                     }
+                }
+                ChangeBean changeBean = new ChangeBean();
+                changeBean.setPosition(position);
+                changeBean.setLine(line);
+                return changeBean;
+            }else {     //  大概是按了 编辑以后没有修改直接保存， 导致了view是null
+                List<String[]> strings = tableList.get(position);
+                List<String> line = new ArrayList<>(tableHeadList.size());
+                for (String[] string : strings) {
+                    String value = string[TableView.HeadIndex.value];
+                    if (value != null) {
+                        value = value.replaceFirst(TableRecyclerAdapter.sufferString, "");
+                    }
+                    line.add(value);
                 }
                 ChangeBean changeBean = new ChangeBean();
                 changeBean.setPosition(position);
@@ -373,8 +388,7 @@ public class TableRecyclerAdapter extends RecyclerView.Adapter<TableRecyclerAdap
                     continue;
                 }
 
-                changeBean = getLineChangeData(position);
-                EditText editText = holder.list.get(lie).findViewById(R.id.custom_table_item_edit_text1);
+                final EditText editText = holder.list.get(lie).findViewById(R.id.custom_table_item_edit_text1);
                 TextWatcher textWatcher = new TextWatcher() {
                     @Override
                     public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -584,12 +598,12 @@ public class TableRecyclerAdapter extends RecyclerView.Adapter<TableRecyclerAdap
         LinearLayout.LayoutParams linearParam = new LinearLayout.LayoutParams(px2dp(context, width), ViewGroup.LayoutParams.MATCH_PARENT);
         linearLayout.setLayoutParams(linearParam);
 
-        final EditText editText;
-        linearLayout.addView(editText = getNormalEditTextView(context, 0, null, View.VISIBLE, true, EditorInfo.TYPE_TEXT_FLAG_MULTI_LINE));
+        final EditText editText = getNormalEditTextView(context, 0, null, View.VISIBLE, true, EditorInfo.TYPE_TEXT_FLAG_MULTI_LINE);
+        editText.setEnabled(false);
+        linearLayout.addView(editText);
 
         final ImageView imgView;
         linearLayout.addView(imgView = getNormalImageView(context, width-1-SPINNER_SIZE));
-
 
         Button button = getNormalButton(context, px2dp(context, SPINNER_SIZE));
         setBtnClick(Type.Type_Image, button, func_num, root, editText, imgView);

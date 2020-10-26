@@ -80,6 +80,12 @@ public class Dialog_ItemDetail extends BaseDialog {
 
                     containerDetail.addView(itemRoot);
                 }
+
+                if (i % 2 != 0){
+                    containerDetail.setBackgroundResource(R.drawable.custom_table_list_2);
+                }else {
+                    containerDetail.setBackgroundResource(R.drawable.custom_table_list_1);
+                }
             }
         }
     }

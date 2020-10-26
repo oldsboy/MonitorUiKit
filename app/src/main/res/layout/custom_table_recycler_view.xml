@@ -178,6 +178,36 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content" />
                 </RelativeLayout>
+
+                <RelativeLayout
+                    android:id="@+id/btn_custom"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="15dp"
+                    android:layout_marginStart="15dp"
+                    android:visibility="gone"
+                    android:paddingTop="4dp"
+                    android:paddingBottom="4dp"
+                    android:paddingLeft="3dp"
+                    android:paddingRight="3dp">
+                    <ImageButton
+                        android:id="@+id/btn5"
+                        android:layout_width="18dp"
+                        android:layout_height="18dp"
+                        android:background="@drawable/custom_save"
+                        android:gravity="center_vertical"
+                        android:layout_gravity="center_vertical"/>
+                    <TextView
+                        android:layout_toRightOf="@id/btn5"
+                        android:id="@+id/tv_btn5"
+                        android:text="自定义按钮"
+                        android:textSize="14sp"
+                        android:layout_marginLeft="4dp"
+                        android:layout_marginStart="4dp"
+                        android:textColor="@color/default_color"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+                </RelativeLayout>
             </LinearLayout>
         </LinearLayout>
         <!--表头及表体-->

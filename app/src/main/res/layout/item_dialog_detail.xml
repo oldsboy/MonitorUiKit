@@ -8,7 +8,6 @@
         android:layout_height="wrap_content">
         <TextView
             android:id="@+id/tv_column_name"
-            android:text="这里写列名"
             android:textSize="16sp"
             android:textColor="@color/default_color"
             android:gravity="end"
@@ -21,10 +20,9 @@
         <View
             android:layout_width="1px"
             android:layout_height="match_parent"
-            android:background="@color/default_color" />
+            android:background="@color/table_line" />
         <TextView
             android:id="@+id/tv_content"
-            android:text="这里写内容\n内容"
             android:textSize="16sp"
             android:textColor="@color/default_color"
             android:paddingTop="10dp"
@@ -37,5 +35,5 @@
     <View
         android:layout_width="match_parent"
         android:layout_height="1px"
-        android:background="@color/default_color" />
+        android:background="@color/table_line" />
 </LinearLayout>

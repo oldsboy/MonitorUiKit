@@ -3,11 +3,13 @@ package com.oldsboy.monitoruikit.tableview;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.graphics.Bitmap;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -88,12 +90,32 @@ public class TableView<T> extends LinearLayout {
 
     private TableRecyclerAdapter adapter;
 
+    public LinearLayout getContainer_tablehead() {
+        return container_tablehead;
+    }
+
+    public void setCustomButton(Bitmap icon, String buttonText, OnClickListener onClickListener){
+        ImageButton button = (ImageButton) this.findViewById(R.id.btn5);
+        button.setImageBitmap(icon);
+
+        TextView tv_btn5 = (TextView) this.findViewById(R.id.tv_btn5);
+        tv_btn5.setText(buttonText);
+
+        View container = findViewById(R.id.btn_custom);
+        container.setVisibility(VISIBLE);
+        container.setOnClickListener(onClickListener);
+    }
+
     /**
      * 设置长按显示单条item详情，于长按事件冲突，以此优先
      * @param isLongClickShowDetail
      */
     public void setEnableLongClickShowDetail(boolean isLongClickShowDetail){
         this.isLongClickShowDetail = isLongClickShowDetail;
+    }
+
+    public void hideImageBottom(boolean isHide){
+        this.img_bottom.setVisibility(isHide?GONE:VISIBLE);
     }
 
     public void setHeadTextBold(boolean isBold){
@@ -538,6 +560,7 @@ public class TableView<T> extends LinearLayout {
 
                     if (adapter.getLast_click_item() != -1)    adapter.notifyItemChanged(adapter.getLast_click_item());
                     adapter.setLast_click_item(-1);
+                    btn_save.requestFocus();
                     List<ChangeBean> changeData = adapter.getChangeData();
                     List<ChangeBean> resultData = new ArrayList<>();
 
@@ -560,7 +583,11 @@ public class TableView<T> extends LinearLayout {
                                 line.add(gezi);
                                 resultLine.add(value);
                             }
-                            tableList.set(position, line);
+                            try {
+                                tableList.set(position, line);
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
                             ChangeBean resultBean = new ChangeBean();
                             resultBean.setPosition(position);
                             resultBean.setLine(resultLine);
@@ -619,6 +646,7 @@ public class TableView<T> extends LinearLayout {
         btn_add = findViewById(R.id.btn_add);
         btn_edit = findViewById(R.id.btn_edit);
         btn_delete = findViewById(R.id.btn_delete);
+
         container_tablehead = findViewById(R.id.container_tablehead);
         recycler_tablebody = findViewById(R.id.container_tablebody);
         btn_save = findViewById(R.id.btn_save);

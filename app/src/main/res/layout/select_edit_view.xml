@@ -29,13 +29,11 @@
         android:layout_width="fill_parent"
         android:layout_height="match_parent"
         android:background="@drawable/input_view_value"
-        android:paddingRight="40dp"
         android:layout_alignParentTop="true"
         android:layout_toRightOf="@+id/selectEditViewTV"
         android:layout_toLeftOf="@id/selectEditViewBtn"
         android:textSize="12dp"
         android:singleLine="true"
-        android:imeOptions="actionNext"
         android:paddingLeft="3dp"
         />
 
