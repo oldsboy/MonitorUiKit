@@ -46,4 +46,6 @@ public class InputView extends LinearLayout{
     public TextView getTitle() {
         return titleTV;
     }
+
+
 }

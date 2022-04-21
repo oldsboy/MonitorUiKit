@@ -19,4 +19,10 @@
     <declare-styleable name="SelectEditView">
         <attr name="se_title" format="string" />
     </declare-styleable>
+
+    <declare-styleable name="InputViewButton">
+        <attr name="ib_title" format="string"/>
+        <attr name="button_name" format="string"/>
+    </declare-styleable>
+
 </resources>

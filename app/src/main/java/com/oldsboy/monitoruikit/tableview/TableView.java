@@ -164,10 +164,10 @@ public class TableView<T> extends LinearLayout {
     }
 
     public T getCurrentClickItem(){
-        if (this.returnDataSetting != null && adapter.getLast_click_item() != -1){
-            List<String> strings = com.oldsboy.monitoruikit.tableview.TableRecyclerAdapter.formatStringArrayToString(tableList, adapter.getLast_click_item(), needOrder);
-            return returnDataSetting.reParse(strings);
-        }else return null;
+        if (adapter.getLast_click_item() != -1) {
+            return dataSetting.getDataList().get(adapter.getLast_click_item());
+        }
+        return null;
     }
 
     public int getLastClickItem() {

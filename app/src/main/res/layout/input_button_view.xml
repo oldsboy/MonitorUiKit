@@ -2,7 +2,7 @@
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="30dp">
+    android:layout_height="32dp">
 
     <TextView
         android:id="@+id/selectEditViewTV"
@@ -15,26 +15,27 @@
         android:layout_alignParentLeft="true"
         android:textSize="13dp"
         android:textStyle="bold"/>
-
-    <Button
-        android:id="@+id/selectEditViewBtn"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentRight="true"
-        android:background="@drawable/btn_edit_right"/>
-
     <EditText
         android:id="@+id/selectEditViewET"
         android:layout_width="fill_parent"
         android:layout_height="match_parent"
         android:background="@drawable/input_view_value"
+        android:paddingRight="40dp"
         android:layout_alignParentTop="true"
-        android:layout_toRightOf="@+id/selectEditViewTV"
-        android:layout_toLeftOf="@id/selectEditViewBtn"
+        android:paddingLeft="5dp"
         android:textSize="12dp"
-        android:singleLine="true"
-        android:paddingLeft="3dp"
-        />
+        android:layout_toRightOf="@+id/selectEditViewTV"
+        android:layout_alignRight="@+id/selectEditViewBtn"
+        android:imeOptions="actionNext"
+        android:singleLine="true"/>
+
+    <Button
+        android:id="@+id/selectEditViewBtn"
+        android:layout_width="48dp"
+        android:layout_height="match_parent"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true"
+        android:textSize="12dp"
+        android:background="@drawable/input_view_lable"/>
 
 </RelativeLayout>

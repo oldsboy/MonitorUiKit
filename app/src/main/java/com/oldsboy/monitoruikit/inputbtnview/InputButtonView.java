@@ -1,58 +1,54 @@
-package com.oldsboy.monitoruikit.selectedit;
+package com.oldsboy.monitoruikit.inputbtnview;
 
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.oldsboy.monitoruikit.R;
 
-
 /**
  * Created by sven on 14-3-8.
  */
-public class SelectEditView extends RelativeLayout{
+public class InputButtonView extends RelativeLayout{
     private Context context;
     private TextView tv;
-    public EditText contentET;
+    public EditText contentIB;
     public Button btn ;
 
     private String title ;
+    private String button_name ;
 
-    public SelectEditView(Context context) {
+    public InputButtonView(Context context) {
         this(context,null);
     }
 
-    public SelectEditView(Context context, AttributeSet attrs) {
+    public InputButtonView(Context context, AttributeSet attrs) {
         super(context, attrs);
         this.context = context;
-        title = context.obtainStyledAttributes(attrs, R.styleable.SelectEditView).getString(R.styleable.SelectEditView_se_title);
-
+        title = context.obtainStyledAttributes(attrs, R.styleable.InputViewButton).getString(R.styleable.InputViewButton_ib_title);
+        button_name = context.obtainStyledAttributes(attrs,R.styleable.InputViewButton).getString(R.styleable.InputViewButton_button_name);
         initSelf();
     }
 
-    public SelectEditView(Context context, AttributeSet attrs, int defStyle) {
+    public InputButtonView(Context context, AttributeSet attrs, int defStyle) {
         this(context,attrs);
     }
 
     private void initSelf(){
         LayoutInflater inflater =(LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        inflater.inflate(R.layout.select_edit_view,this);
+        inflater.inflate(R.layout.input_button_view,this);
         tv = (TextView)findViewById(R.id.selectEditViewTV);
-        contentET = (EditText)findViewById(R.id.selectEditViewET);
+        contentIB = (EditText)findViewById(R.id.selectEditViewET);
         btn = (Button)findViewById(R.id.selectEditViewBtn);
         tv.setText(title);
+        btn.setText(button_name);
     }
 
     public TextView getTitle() {
         return tv;
-    }
-
-    public Button getBtn(){
-        return btn;
     }
 }
