@@ -14,11 +14,14 @@ import android.view.ViewTreeObserver;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.FrameLayout;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 
@@ -216,6 +219,20 @@ public class TableRecyclerAdapter extends RecyclerView.Adapter<TableRecyclerAdap
 
     private TableRecyclerAdapter.OnSpinnerClickListener onSpinnerClickListener;
 
+    private TableRecyclerAdapter.onItemTextChangeListener onItemTextChangeListener;
+
+    public TableRecyclerAdapter.onItemTextChangeListener getOnItemTextChangeListener() {
+        return onItemTextChangeListener;
+    }
+
+    public void setOnItemTextChangeListener(TableRecyclerAdapter.onItemTextChangeListener onItemTextChangeListener) {
+        this.onItemTextChangeListener = onItemTextChangeListener;
+    }
+
+    public interface onItemTextChangeListener {
+        void onTextChange(View itemView, int rows, int column, EditText editText, Editable editable);
+    }
+
     public interface OnSpinnerClickListener {
         void onSpinner0Click(View v, LinearLayout root, EditText editText);
         void onSpinner1Click(View v, LinearLayout root, EditText editText);
@@ -276,6 +293,7 @@ public class TableRecyclerAdapter extends RecyclerView.Adapter<TableRecyclerAdap
         holder = new ListViewHolder(root);
         int spinner_num = 0;
         int image_num = 0;
+        int text_change = 0;
         for (int lie = 0; lie < tableHeadList.size(); lie++) {
             String[] mg = tableHeadList.get(lie);
             int width = Integer.valueOf(mg[TableView.HeadIndex.width]);                         //  列宽[1]
@@ -328,6 +346,9 @@ public class TableRecyclerAdapter extends RecyclerView.Adapter<TableRecyclerAdap
                     notifyItemChanged(temp_position);
                 if (last_click_item != -1 && getItemViewType(last_click_item) != EDIT_TYPE)
                     notifyItemChanged(last_click_item);
+                if ((myItemClickListener != null || onMyItemDoubleClickListener != null) && returnDataSetting == null) {
+                    System.out.println("需要设置returnDataSetting才能设置点击事件");
+                }
                 if (myItemClickListener != null && returnDataSetting != null){
                     myItemClickListener.onItemClickListener(holder.itemView, position, returnDataSetting.reParse(formatStringArrayToString(tableList, position, needOrder)));
                 }
@@ -357,6 +378,7 @@ public class TableRecyclerAdapter extends RecyclerView.Adapter<TableRecyclerAdap
         });
 
 
+        int itemViewType = getItemViewType(position);
         if ((position + 1) % 2 != 0) {
             holder.itemView.setBackgroundResource(R.drawable.custom_table_list_2);
         } else {
@@ -367,9 +389,11 @@ public class TableRecyclerAdapter extends RecyclerView.Adapter<TableRecyclerAdap
                 holder.itemView.setBackgroundResource(R.drawable.list_body_border);
             }
         }
+        if (itemViewType == EDIT_TYPE) {
+            holder.itemView.setBackgroundResource(R.drawable.list_item_editing);
+        }
 
         int cell_num = tableList.get(position).size();      //  一行的格子数量
-        int itemViewType = getItemViewType(position);
         for (int lie = 0; lie < cell_num; lie++) {
             String[] mg = tableList.get(position).get(lie);
             String value = mg[TableView.HeadIndex.value];
@@ -389,6 +413,7 @@ public class TableRecyclerAdapter extends RecyclerView.Adapter<TableRecyclerAdap
                 }
 
                 final EditText editText = holder.list.get(lie).findViewById(R.id.custom_table_item_edit_text1);
+                final int finalLie = lie;
                 TextWatcher textWatcher = new TextWatcher() {
                     @Override
                     public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -403,6 +428,9 @@ public class TableRecyclerAdapter extends RecyclerView.Adapter<TableRecyclerAdap
                     @Override
                     public void afterTextChanged(Editable s) {
                         changeBean = getLineChangeData(position);
+                        if (onItemTextChangeListener != null) {
+                            onItemTextChangeListener.onTextChange(holder.itemView, position, finalLie, editText, s);
+                        }
                     }
                 };
                 if (editText.getTag() != null && editText.getTag() instanceof TextWatcher){
@@ -468,7 +496,7 @@ public class TableRecyclerAdapter extends RecyclerView.Adapter<TableRecyclerAdap
         int Type_Spinner = 0;
         int Type_Image = 1;
     }
-    private void setBtnClick(@Type int type, Button button, final int func_num, final LinearLayout root, final EditText editText, final ImageView imageView){
+    private void setBtnClick(@Type int type, View button, final int func_num, final LinearLayout root, final EditText editText, final ImageView imageView){
         View.OnClickListener onClickListener = null;
         if (type == Type.Type_Spinner){
             onClickListener = new View.OnClickListener() {
@@ -583,7 +611,7 @@ public class TableRecyclerAdapter extends RecyclerView.Adapter<TableRecyclerAdap
         final EditText editText;
         linearLayout.addView(editText = getNormalEditTextView(context, width-1-SPINNER_SIZE, null, View.VISIBLE, true, EditorInfo.TYPE_TEXT_FLAG_MULTI_LINE));
 
-        Button button = getNormalButton(context, px2dp(context, SPINNER_SIZE));
+        View button = getNormalButton(context, px2dp(context, SPINNER_SIZE));
         setBtnClick(Type.Type_Spinner, button, func_num, root, editText, null);
         linearLayout.addView(button);
 
@@ -605,7 +633,7 @@ public class TableRecyclerAdapter extends RecyclerView.Adapter<TableRecyclerAdap
         final ImageView imgView;
         linearLayout.addView(imgView = getNormalImageView(context, width-1-SPINNER_SIZE));
 
-        Button button = getNormalButton(context, px2dp(context, SPINNER_SIZE));
+        View button = getNormalButton(context, px2dp(context, SPINNER_SIZE));
         setBtnClick(Type.Type_Image, button, func_num, root, editText, imgView);
         linearLayout.addView(button);
 
@@ -664,7 +692,8 @@ public class TableRecyclerAdapter extends RecyclerView.Adapter<TableRecyclerAdap
         editText.setLayoutParams(tvPara);
         editText.setText(value);            //  此处已经绑定值了
         editText.setBackgroundResource(0);
-        editText.setGravity(Gravity.START|Gravity.TOP);
+//        editText.setGravity(Gravity.START|Gravity.TOP);
+        editText.setGravity(Gravity.START|Gravity.CENTER_VERTICAL);
         editText.setVisibility(visible);
         editText.setSingleLine(false);
         editText.setInputType(input_type);
@@ -679,14 +708,20 @@ public class TableRecyclerAdapter extends RecyclerView.Adapter<TableRecyclerAdap
         return editText;
     }
 
-    private static Button getNormalButton(Context context, int width){
-        Button button = new Button(context);
-        LinearLayout.LayoutParams btnParam = new LinearLayout.LayoutParams(width, px2dp(context, SPINNER_SIZE));
+    private static View getNormalButton(Context context, int width){
+        FrameLayout frameLayout = new FrameLayout(context);
+        LinearLayout.LayoutParams btnParam = new LinearLayout.LayoutParams(width, ViewGroup.LayoutParams.MATCH_PARENT);
         btnParam.gravity = Gravity.CENTER_VERTICAL;
-        button.setLayoutParams(btnParam);
-        button.setBackgroundResource(R.drawable.btn_edit_right);
-        button.setId(R.id.custom_table_item_btn1);
-        return button;
+        frameLayout.setLayoutParams(btnParam);
+        frameLayout.setBackground(ContextCompat.getDrawable(context, R.drawable.button_click));
+        frameLayout.setId(R.id.custom_table_item_btn1);
+
+        ImageView imageView = new ImageView(context);
+        FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
+        imageView.setLayoutParams(layoutParams);
+        imageView.setImageResource(R.drawable.ic_baseline_keyboard_arrow_down_18);
+        frameLayout.addView(imageView);
+        return frameLayout;
     }
 
     private ImageView getNormalImageView(final Context context, int width){

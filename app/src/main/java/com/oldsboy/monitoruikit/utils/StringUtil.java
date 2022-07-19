@@ -14,7 +14,7 @@ package com.oldsboy.monitoruikit.utils;
  */
 public class StringUtil {
     public static boolean isEmpty(String str) {
-        return str == null || str.trim().length() < 1 || str.equals("");
+        return str == null || str.trim().length() < 1 || str.equals("")|| str.equals("null");
     }
 
     public static String printClassValue(Object obj){

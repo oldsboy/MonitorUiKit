@@ -1,4 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="select_color">#FFA2D0EE</color>
+
+    <color name="editing_color">#33E91E63</color>
+    <color name="button_bg">#26F43636</color>
+    <color name="button_bg_press">#4DF43636</color>
 </resources>

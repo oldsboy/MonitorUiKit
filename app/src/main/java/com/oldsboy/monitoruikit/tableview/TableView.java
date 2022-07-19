@@ -3,7 +3,6 @@ package com.oldsboy.monitoruikit.tableview;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.graphics.Bitmap;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,6 +19,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 
 import com.oldsboy.monitoruikit.R;
+import com.oldsboy.monitoruikit.inputbtnview.InputButtonView;
 import com.oldsboy.monitoruikit.tableview.dialog.Dialog_BigTable;
 import com.oldsboy.monitoruikit.utils.scroll.NoScrollLinearLayoutManager;
 import com.oldsboy.monitoruikit.utils.ScreenUtil;
@@ -60,6 +60,12 @@ public class TableView<T> extends LinearLayout {
     private ImageView img_bottom;
     private FrameLayout container_title;
     private LinearLayout container;
+    private LinearLayout containerPagination;
+    private ImageView paginationNext;
+    private ImageView paginationSkipBefore;
+    private ImageView paginationBefore;
+    private InputButtonView ibvJump;
+    private ImageView paginationSkipNext;
 
     /**
      * data/setting
@@ -79,6 +85,12 @@ public class TableView<T> extends LinearLayout {
     private boolean isLongClickShowDetail = true;
 
     private NoScrollLinearLayoutManager linearLayoutManager;
+    private boolean pagination = false;
+    private int rows = 50;
+    private int page = 1;
+    //  这个值是临时存储本页数据
+    private List<T> current_data_list;
+    private List<T> tempSearchData;
 
     /**
      * interface
@@ -87,6 +99,23 @@ public class TableView<T> extends LinearLayout {
     private TableView.dataSetting<T> dataSetting;
     private TableView.returnDataSetting<T> returnDataSetting;
     private OnBtnClickListener onBtnClickListener;
+    private onItemTextChangeListener onItemTextChangeListener;
+
+    public void pagination(boolean pagination){
+        this.pagination = pagination;
+    }
+
+    public boolean is_editing() {
+        return is_editing;
+    }
+
+    public TableView.onItemTextChangeListener getOnItemTextChangeListener() {
+        return onItemTextChangeListener;
+    }
+
+    public void setOnItemTextChangeListener(TableView.onItemTextChangeListener onItemTextChangeListener) {
+        this.onItemTextChangeListener = onItemTextChangeListener;
+    }
 
     private TableRecyclerAdapter adapter;
 
@@ -94,9 +123,10 @@ public class TableView<T> extends LinearLayout {
         return container_tablehead;
     }
 
-    public void setCustomButton(Bitmap icon, String buttonText, OnClickListener onClickListener){
+    public void setCustomButton(int resource_id, String buttonText, OnClickListener onClickListener){
         ImageButton button = (ImageButton) this.findViewById(R.id.btn5);
-        button.setImageBitmap(icon);
+//        button.setImageBitmap(icon);
+        button.setImageResource(resource_id);
 
         TextView tv_btn5 = (TextView) this.findViewById(R.id.tv_btn5);
         tv_btn5.setText(buttonText);
@@ -165,7 +195,7 @@ public class TableView<T> extends LinearLayout {
 
     public T getCurrentClickItem(){
         if (adapter.getLast_click_item() != -1) {
-            return dataSetting.getDataList().get(adapter.getLast_click_item());
+            return current_data_list.get(adapter.getLast_click_item());
         }
         return null;
     }
@@ -287,6 +317,14 @@ public class TableView<T> extends LinearLayout {
             tv_table_name.setOnLongClickListener(null);
             img_big.setOnClickListener(null);
         }
+    }
+
+    public void setRows(int rows) {
+        this.rows = rows;
+    }
+
+    public void setPage(int page) {
+        this.page = page;
     }
 
     public @interface ItemEditType{
@@ -441,15 +479,70 @@ public class TableView<T> extends LinearLayout {
         });
     }
 
+    /** @description 分页函数
+     * @param dataList 参数是源数据列表
+     * @return java.util.List<T> 返回分页后的数据列表
+     * @author oldsboy; @date 2022-07-19 09:45 */
+    private List<T> set_pagination(List<T> dataList) {
+        if (!pagination || dataList == null) {      //  如果不需要分页隐藏完事
+            containerPagination.setVisibility(GONE);
+            return dataList;
+        }
+
+        //  分页实现:限制当前list的数量
+        if (rows < 0) rows = 50;
+        if (page < 1) page = 1;
+        int total = (dataList.size() / rows) + 1;
+        if (page >= total) { //  最后一页
+            page =  total;
+            paginationSkipNext.setEnabled(false);
+            paginationNext.setEnabled(false);
+        }else {
+            paginationSkipNext.setEnabled(true);
+            paginationNext.setEnabled(true);
+        }
+        if (page > 1) {
+            paginationSkipBefore.setEnabled(true);
+            paginationBefore.setEnabled(true);
+        }else {
+            paginationSkipBefore.setEnabled(false);
+            paginationBefore.setEnabled(false);
+        }
+        ibvJump.getTitle().setText("总共 "+total+" 页 当前 " + page + " 页");
+
+        containerPagination.setVisibility(VISIBLE);
+
+        ArrayList<T> pagination_list = new ArrayList<>();
+        //  1*50=0~49 2*50=50~99
+        for (int i = ((page-1) * rows); i < (page * rows); i++) {
+            if (i >= dataList.size()) {
+                break;
+            }
+            T obj = dataList.get(i);
+            pagination_list.add(obj);
+        }
+
+        return pagination_list;
+    }
+
     public void reloadData(){
+        tempSearchData = null;
         tableList.clear();
-        tableList.addAll(getTableList(dataSetting.getDataList()));
+        current_data_list = set_pagination(dataSetting.getDataList());
+        tableList.addAll(getTableList(current_data_list));
         initRecyclerView();
     }
 
+    //  重新设置数据源将page重置
     public void reloadData(List<T> data){
+        if (data == null) {
+            reloadData();
+            return;
+        }
+        tempSearchData = data;
         tableList.clear();
-        tableList.addAll(getTableList(data));
+        current_data_list = set_pagination(data);
+        tableList.addAll(getTableList(current_data_list));
         initRecyclerView();
     }
 
@@ -458,6 +551,9 @@ public class TableView<T> extends LinearLayout {
         if (onBtnClickListener != null) {
             adapter.setOnSpinnerClickListener(onBtnClickListener.onSpinnerClickListener());
             adapter.setOnImageViewClickListener(onBtnClickListener.onImageViewClickListener());
+        }
+        if (onItemTextChangeListener != null) {
+            adapter.setOnItemTextChangeListener(onItemTextChangeListener.onItemTextChangeListener());
         }
         if (onMyItemClickListener != null){
             adapter.setMyItemClickListener(onMyItemClickListener);
@@ -626,16 +722,21 @@ public class TableView<T> extends LinearLayout {
     private List<String[]> getTableList(T data) {
         List<String[]> raw = new ArrayList<>();
         String[] dataPer = dataSetting.parse(data);        //  一列的数据
-        for (int column = 0; column < new_TableHeadList.size(); column++) {
-            String value = "";
-            if (needOrder) {
-                if (column != 0){
-                    value = dataPer[column-1];
+        try {
+            for (int column = 0; column < new_TableHeadList.size(); column++) {
+                String value = "";
+                if (needOrder) {
+                    if (column != 0){
+                        value = dataPer[column-1];
+                    }
+                }else {
+                    value = dataPer[column];
                 }
-            }else {
-                value = dataPer[column];
+                raw.add(new String[]{value, new_TableHeadList.get(column)[HeadIndex.width], new_TableHeadList.get(column)[HeadIndex.itemType]});
             }
-            raw.add(new String[]{value, new_TableHeadList.get(column)[HeadIndex.width], new_TableHeadList.get(column)[HeadIndex.itemType]});
+        } catch (ArrayIndexOutOfBoundsException e) {
+            e.printStackTrace();
+            System.out.println("配置的表头跟数据不匹配!");
         }
         return raw;
     }
@@ -657,6 +758,61 @@ public class TableView<T> extends LinearLayout {
         container_title = findViewById(R.id.container_title);
         container = findViewById(R.id.container);
 
+        containerPagination = findViewById(R.id.container_pagination);
+        paginationNext = findViewById(R.id.pagination_next);
+        paginationSkipBefore = findViewById(R.id.pagination_skip_before);
+        paginationBefore = findViewById(R.id.pagination_before);
+        ibvJump = findViewById(R.id.ibv_jump);
+        paginationSkipNext = findViewById(R.id.pagination_skip_next);
+//        ibvJump.getTitle().setLayoutParams(new RelativeLayout.LayoutParams(ScreenUtil.dp2px(context,  200), LayoutParams.MATCH_PARENT));
+        ViewGroup.LayoutParams layoutParams = ibvJump.getTitle().getLayoutParams();
+        layoutParams.width = ScreenUtil.dp2px(context,  300);
+
+        paginationBefore.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                page--;
+                reloadData(tempSearchData);
+            }
+        });
+
+        paginationSkipBefore.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                page = 1;
+                reloadData(tempSearchData);
+            }
+        });
+
+        paginationNext.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                page++;
+                reloadData(tempSearchData);
+            }
+        });
+
+        paginationSkipNext.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int total = dataSetting.getDataList().size();
+                page = (total / rows) + 1;
+                reloadData(tempSearchData);
+            }
+        });
+
+        ibvJump.btn.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String jumpText = ibvJump.contentIB.getText().toString();
+                try {
+                    page = Integer.parseInt(jumpText);
+                } catch (NumberFormatException ignore) {}
+                reloadData(tempSearchData);
+                ibvJump.contentIB.setText("");
+            }
+        });
+
         recycler_tablebody.setFocusable(false);
         recycler_tablebody.setFocusableInTouchMode(false);
 
@@ -667,6 +823,10 @@ public class TableView<T> extends LinearLayout {
     public interface OnBtnClickListener {
         TableRecyclerAdapter.OnImageViewClickListener onImageViewClickListener();
         TableRecyclerAdapter.OnSpinnerClickListener onSpinnerClickListener();
+    }
+
+    public interface onItemTextChangeListener{
+        TableRecyclerAdapter.onItemTextChangeListener onItemTextChangeListener();
     }
 
     public interface onToolBarClick{
